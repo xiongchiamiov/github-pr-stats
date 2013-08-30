@@ -13,6 +13,8 @@ Options:
 # May you share freely, never taking more than you give.
 # May you find love and love everyone you find.
 
+from __future__ import division
+
 import signal
 import sys
 
@@ -51,6 +53,16 @@ if not token:
 gh = login(token=token)
 
 repo = gh.repository(arguments['<user>'], arguments['<repo>'])
+stats = {
+   'count': 0,
+   'merged': 0,
+}
 for pr in repo.iter_pulls(state='closed'):
    print '#%s (%s): %s - %s' % (pr.number, pr.is_merged(), pr.created_at, pr.closed_at)
+   stats['count'] += 1
+   if pr.is_merged():
+      stats['merged'] += 1
+
+percentageMerged = round(100 - (stats['count'] / stats['merged']), 2)
+print '%s%% (%s of %s) closed pulls merged.' % (percentageMerged, stats['merged'], stats['count'])
 
