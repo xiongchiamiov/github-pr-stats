@@ -23,7 +23,7 @@ from ascii_graph import Pyasciigraph
 from docopt import docopt
 from envoy import run
 from github3 import authorize, login, GitHub
-from numpy import array, median
+from numpy import array, median as calcMedian
 
 # Stack traces are ugly; why would we want to print one on ctrl-c?
 def nice_sigint(signal, frame):
@@ -75,31 +75,39 @@ for pr in repo.iter_pulls(state='closed'):
 percentageMerged = round(100 - (stats['count'] / stats['merged']), 2)
 print '%s%% (%s of %s) closed pulls merged.' % (percentageMerged, stats['merged'], stats['count'])
 
-# It'd be a lot nicer to do these calculations using
-# http://www.python.org/dev/peps/pep-0450/ or even
-# https://pypi.python.org/pypi/stats/ instead of the
-# sometimes-difficult-to-install Numpy.  But alas, we're stuck with that for
-# Python 2.x.
-daysOpen = array(stats['daysOpen'])
-mean = daysOpen.mean()
-median = median(daysOpen) # I don't know why narray doesn't have this as a method.
-stdDev = daysOpen.std()
-min = daysOpen.min()
-max = daysOpen.max()
-print 'Days open: %s (mean) %s (median) %s (std. dev.) %s (min) %s (max)' \
-    % (mean, median, stdDev, min, max)
+def print_report(subject):
+   '''Do various calculations on the subject, then print the results.
+   
+   This should be like, 8 different functions or something, but bad API design
+   is easier.
+   '''
+   # It'd be a lot nicer to do these calculations using
+   # http://www.python.org/dev/peps/pep-0450/ or even
+   # https://pypi.python.org/pypi/stats/ instead of the
+   # sometimes-difficult-to-install Numpy.  But alas, we're stuck with that for
+   # Python 2.x.
+   data = array(stats[subject])
+   mean = data.mean()
+   median = calcMedian(data) # I don't know why narray doesn't have this as a method.
+   stdDev = data.std()
+   min = data.min()
+   max = data.max()
+   print '%s: %s (mean) %s (median) %s (std. dev.) %s (min) %s (max)' \
+       % (subject, mean, median, stdDev, min, max)
 
-# Touch every value in the range to ensure the defaultdict counts them as
-# keys.  This allows us to make a histogram without gaps.
-for i in range(min, max):
-   stats['daysOpenHistogram'][i]
+   # Touch every value in the range to ensure the defaultdict counts them as
+   # keys.  This allows us to make a histogram without gaps.
+   for i in range(min, max):
+      stats[subject+'Histogram'][i]
 
-# Work around a bug in ascii_graph.
-# https://github.com/kakwa/py-ascii-graph/issues/3
-daysOpenHistogram = [(str(key), value) \
-                     for (key, value) \
-                     in stats['daysOpenHistogram'].items()]
-graph = Pyasciigraph()
-for line in graph.graph('', daysOpenHistogram):
-   print line
+   # Work around a bug in ascii_graph.
+   # https://github.com/kakwa/py-ascii-graph/issues/3
+   histogram = [(str(key), value) \
+                for (key, value) \
+                in stats[subject+'Histogram'].items()]
+   graph = Pyasciigraph()
+   for line in graph.graph('', histogram):
+      print line
+
+print_report('daysOpen')
 
