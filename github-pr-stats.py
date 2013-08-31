@@ -75,9 +75,36 @@ dayMapping = {
    5: 'Sa',
    6: 'Su',
 }
-for day in dayMapping.values():
-   stats['dayOfWeekCreated'][day] = 0
-   stats['dayOfWeekClosed'][day] = 0
+
+def initialize_ordered_dict(dictionary, keys, value=None):
+   '''Initialize a dictionary with a set of ordered keys.
+   
+   This is primarily useful in two situations.
+   
+   First, you may desire the attributes of both an OrderedDict and a
+   defaultdict.  If you know ahead of time the keys that will exist in the
+   dictionary, you can created an OrderedDict and use this function to
+   initialize the values.
+   
+   Secondly, you may have a defaultdict with holes you wish to fill.  This can
+   happen if you use integer keys, but don't know the minimum and maximum key
+   values at creation.  Using this function with ``value=None`` will reference
+   the keys, not changing their values, but forcing the dictionary to think
+   they exist (and thus having them show up in d.keys() and d.items()).
+   
+   :param dictionary dictionary: The dictionary to initialize.
+   :param iterable keys: The keys to initialize.
+   :param any value: The value to set keys to.  If ``None``, don't set a value,
+                     but just touch the key.
+   '''
+   for key in keys:
+      if value is not None:
+         dictionary[key] = value
+      else:
+         dictionary[key]
+
+initialize_ordered_dict(stats['dayOfWeekCreated'], dayMapping.values(), 0)
+initialize_ordered_dict(stats['dayOfWeekClosed'], dayMapping.values(), 0)
 
 progressMeter = 'Data fetches remaining:   0'
 print progressMeter,
@@ -125,10 +152,7 @@ def print_report(subject):
    print '%s: %s (mean) %s (median) %s (std. dev.) %s (min) %s (max)' \
        % (subject, mean, median, stdDev, min, max)
 
-   # Touch every value in the range to ensure the defaultdict counts them as
-   # keys.  This allows us to make a histogram without gaps.
-   for i in range(min, max):
-      stats[subject+'Histogram'][i]
+   initialize_ordered_dict(stats[subject+'Histogram'], range(min, max))
    
    print_histogram(subject+'Histogram')
 
