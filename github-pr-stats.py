@@ -17,7 +17,7 @@ from __future__ import division
 
 import signal
 import sys
-from collections import defaultdict
+from collections import defaultdict, OrderedDict
 
 from ascii_graph import Pyasciigraph
 from docopt import docopt
@@ -63,7 +63,20 @@ stats = {
    'daysOpenHistogram': defaultdict(int),
    'comments': [],
    'commentsHistogram': defaultdict(int),
+   'dayOfWeekCreated': OrderedDict(),
 }
+dayMapping = {
+   0: 'M',
+   1: 'T',
+   2: 'W',
+   3: 'R',
+   4: 'F',
+   5: 'Sa',
+   6: 'Su',
+}
+for day in dayMapping.values():
+   stats['dayOfWeekCreated'][day] = 0
+
 progressMeter = 'Data fetches remaining:   0'
 print progressMeter,
 for pr in repo.iter_pulls(state='closed'):
@@ -81,6 +94,8 @@ for pr in repo.iter_pulls(state='closed'):
    stats['daysOpenHistogram'][daysOpen] += 1
    stats['comments'].append(comments)
    stats['commentsHistogram'][comments] += 1
+   dayAbbreviation = dayMapping[pr.created_at.weekday()]
+   stats['dayOfWeekCreated'][dayAbbreviation] += 1
 print '\b' * (len(progressMeter) + 1), # +1 for the newline
 
 percentageMerged = round(100 - (stats['count'] / stats['merged']), 2)
@@ -110,16 +125,20 @@ def print_report(subject):
    # keys.  This allows us to make a histogram without gaps.
    for i in range(min, max):
       stats[subject+'Histogram'][i]
+   
+   print_histogram(subject+'Histogram')
 
+def print_histogram(key, label=''):
    # Work around a bug in ascii_graph.
    # https://github.com/kakwa/py-ascii-graph/issues/3
    histogram = [(str(key), value) \
                 for (key, value) \
-                in stats[subject+'Histogram'].items()]
+                in stats[key].items()]
    graph = Pyasciigraph()
-   for line in graph.graph('', histogram):
+   for line in graph.graph(label, histogram):
       print line
 
 print_report('daysOpen')
 print_report('comments')
+print_histogram('dayOfWeekCreated', 'Day of Week Created')
 
