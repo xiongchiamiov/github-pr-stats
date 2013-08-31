@@ -64,11 +64,16 @@ stats = {
    'comments': [],
    'commentsHistogram': defaultdict(int),
 }
+progressMeter = 'Data fetches remaining:   0'
+print progressMeter,
 for pr in repo.iter_pulls(state='closed'):
+   # We'll just assume we won't go over three digits of issues, which is
+   # perhaps a bad assumption.
+   print '\b\b\b\b%3d' % pr.number,
+   sys.stdout.flush()
+   
    daysOpen = (pr.closed_at - pr.created_at).days
    comments = len(list(pr.iter_comments()))
-   print '#%s (%s): %s - %s (%s days)' \
-       % (pr.number, pr.is_merged(), pr.created_at, pr.closed_at, daysOpen)
    stats['count'] += 1
    if pr.is_merged():
       stats['merged'] += 1
@@ -76,6 +81,7 @@ for pr in repo.iter_pulls(state='closed'):
    stats['daysOpenHistogram'][daysOpen] += 1
    stats['comments'].append(comments)
    stats['commentsHistogram'][comments] += 1
+print '\b' * (len(progressMeter) + 1), # +1 for the newline
 
 percentageMerged = round(100 - (stats['count'] / stats['merged']), 2)
 print '%s%% (%s of %s) closed pulls merged.' % (percentageMerged, stats['merged'], stats['count'])
