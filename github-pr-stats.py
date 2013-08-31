@@ -61,9 +61,12 @@ stats = {
    'merged': 0,
    'daysOpen': [],
    'daysOpenHistogram': defaultdict(int),
+   'comments': [],
+   'commentsHistogram': defaultdict(int),
 }
 for pr in repo.iter_pulls(state='closed'):
    daysOpen = (pr.closed_at - pr.created_at).days
+   comments = len(list(pr.iter_comments()))
    print '#%s (%s): %s - %s (%s days)' \
        % (pr.number, pr.is_merged(), pr.created_at, pr.closed_at, daysOpen)
    stats['count'] += 1
@@ -71,6 +74,8 @@ for pr in repo.iter_pulls(state='closed'):
       stats['merged'] += 1
    stats['daysOpen'].append(daysOpen)
    stats['daysOpenHistogram'][daysOpen] += 1
+   stats['comments'].append(comments)
+   stats['commentsHistogram'][comments] += 1
 
 percentageMerged = round(100 - (stats['count'] / stats['merged']), 2)
 print '%s%% (%s of %s) closed pulls merged.' % (percentageMerged, stats['merged'], stats['count'])
@@ -110,4 +115,5 @@ def print_report(subject):
       print line
 
 print_report('daysOpen')
+print_report('comments')
 
