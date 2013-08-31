@@ -11,16 +11,16 @@ Various statistics on the pull requests in your repo.
 * ~~Histogram of such.~~
 * Sums of pulls closed, grouped by day of the week.
 * ~~Histogram of such.~~
-* Sums of pulls opened, grouped by user.
+* Sums of pulls opened, grouped by hour of the day.
 * Histogram of such.
-* Sums of pulls closed, grouped by user.
+* Sums of pulls closed, grouped by hour of the day.
 * Histogram of such.
 * Sums of pulls opened, grouped by week.
 * Histogram of such.
 * Sums of pulls closed, grouped by week.
 * Histogram of such.
-* Sums of pulls opened, grouped by hour of the day.
+* Sums of pulls opened, grouped by user.
 * Histogram of such.
-* Sums of pulls closed, grouped by hour of the day.
+* Sums of pulls closed, grouped by user.
 * Histogram of such.
 
