@@ -65,6 +65,7 @@ stats = {
    'commentsHistogram': defaultdict(int),
    'dayOfWeekCreated': OrderedDict(),
    'dayOfWeekClosed': OrderedDict(),
+   'hourOfDayCreated': OrderedDict(),
 }
 dayMapping = {
    0: 'M',
@@ -105,6 +106,7 @@ def initialize_ordered_dict(dictionary, keys, value=None):
 
 initialize_ordered_dict(stats['dayOfWeekCreated'], dayMapping.values(), 0)
 initialize_ordered_dict(stats['dayOfWeekClosed'], dayMapping.values(), 0)
+initialize_ordered_dict(stats['hourOfDayCreated'], range(24), 0)
 
 progressMeter = 'Data fetches remaining:   0'
 print progressMeter,
@@ -127,6 +129,7 @@ for pr in repo.iter_pulls(state='closed'):
    stats['dayOfWeekCreated'][dayAbbreviation] += 1
    dayAbbreviation = dayMapping[pr.closed_at.weekday()]
    stats['dayOfWeekClosed'][dayAbbreviation] += 1
+   stats['hourOfDayCreated'][pr.created_at.hour] += 1
 print '\b' * (len(progressMeter) + 1), # +1 for the newline
 
 percentageMerged = round(100 - (stats['count'] / stats['merged']), 2)
@@ -170,4 +173,5 @@ print_report('daysOpen')
 print_report('comments')
 print_histogram('dayOfWeekCreated', 'Day of Week Created')
 print_histogram('dayOfWeekClosed', 'Day of Week Closed')
+print_histogram('hourOfDayCreated', 'Hour of Day Created')
 
