@@ -70,6 +70,7 @@ stats = {
    'hourOfDayClosed': OrderedDict(),
    'weekCreated': defaultdict(int),
    'weekClosed': defaultdict(int),
+   'userCreating': defaultdict(int),
 }
 dayMapping = {
    0: 'M',
@@ -143,6 +144,7 @@ for pr in repo.iter_pulls(state='closed'):
    weekClosed = (pr.closed_at - timedelta(days=pr.closed_at.weekday()))
    weekClosed = weekClosed.date() # Discard time information.
    stats['weekClosed'][weekClosed] += 1
+   stats['userCreating'][pr.user.login] += 1
 print '\b' * (len(progressMeter) + 1), # +1 for the newline
 
 percentageMerged = round(100 - (stats['count'] / stats['merged']), 2)
@@ -215,4 +217,5 @@ print_histogram(stats['hourOfDayCreated'].items(), 'Hour of Day Created')
 print_histogram(stats['hourOfDayClosed'].items(), 'Hour of Day Closed')
 print_date_report('weekCreated', 'Week Created')
 print_date_report('weekClosed', 'Week Closed')
+print_histogram(stats['userCreating'].items(), 'User Creating Pull Request')
 
