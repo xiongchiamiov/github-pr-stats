@@ -22,5 +22,5 @@ Various statistics on the pull requests in your repo.
 * Sums of pulls opened, grouped by user.
 * ~~Histogram of such.~~
 * Sums of pulls closed, grouped by user.
-* Histogram of such.
+* ~~Histogram of such.~~
 

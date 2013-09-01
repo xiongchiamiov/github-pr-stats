@@ -71,6 +71,7 @@ stats = {
    'weekCreated': defaultdict(int),
    'weekClosed': defaultdict(int),
    'userCreating': defaultdict(int),
+   'userClosing': defaultdict(int),
 }
 dayMapping = {
    0: 'M',
@@ -145,6 +146,13 @@ for pr in repo.iter_pulls(state='closed'):
    weekClosed = weekClosed.date() # Discard time information.
    stats['weekClosed'][weekClosed] += 1
    stats['userCreating'][pr.user.login] += 1
+   # We don't seem to have information on who closed an issue if they didn't
+   # merge it.
+   if pr.is_merged():
+      # For whatever reason, the user doing the merge isn't part of the initial
+      # data set.
+      pr.refresh()
+      stats['userClosing'][pr.merged_by.login] += 1
 print '\b' * (len(progressMeter) + 1), # +1 for the newline
 
 percentageMerged = round(100 - (stats['count'] / stats['merged']), 2)
@@ -218,4 +226,5 @@ print_histogram(stats['hourOfDayClosed'].items(), 'Hour of Day Closed')
 print_date_report('weekCreated', 'Week Created')
 print_date_report('weekClosed', 'Week Closed')
 print_histogram(stats['userCreating'].items(), 'User Creating Pull Request')
+print_histogram(stats['userClosing'].items(), 'User Merging Pull Request')
 
