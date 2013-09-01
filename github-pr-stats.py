@@ -18,6 +18,7 @@ from __future__ import division
 import signal
 import sys
 from collections import defaultdict, OrderedDict
+from datetime import datetime, timedelta
 
 from ascii_graph import Pyasciigraph
 from docopt import docopt
@@ -67,6 +68,7 @@ stats = {
    'dayOfWeekClosed': OrderedDict(),
    'hourOfDayCreated': OrderedDict(),
    'hourOfDayClosed': OrderedDict(),
+   'weekCreated': defaultdict(int),
 }
 dayMapping = {
    0: 'M',
@@ -133,10 +135,28 @@ for pr in repo.iter_pulls(state='closed'):
    stats['dayOfWeekClosed'][dayAbbreviation] += 1
    stats['hourOfDayCreated'][pr.created_at.hour] += 1
    stats['hourOfDayClosed'][pr.closed_at.hour] += 1
+   # Store the first day of the week.
+   weekCreated = (pr.created_at - timedelta(days=pr.created_at.weekday()))
+   weekCreated = weekCreated.date() # Discard time information.
+   stats['weekCreated'][weekCreated] += 1
 print '\b' * (len(progressMeter) + 1), # +1 for the newline
 
 percentageMerged = round(100 - (stats['count'] / stats['merged']), 2)
 print '%s%% (%s of %s) closed pulls merged.' % (percentageMerged, stats['merged'], stats['count'])
+
+def create_week_range(start, finish):
+   '''Create a range of weeks from start and finish dates.
+   
+   :param date start: The date of the first day in the first week.
+   :param date finish: The date of the first day in the last week.
+   :rtype: An iterable of strings in ISO 8601 format.
+   '''
+   weeks = []
+   week = start
+   while week < finish:
+      weeks.append(week.strftime('%Y-%m-%d'))
+      week += timedelta(weeks=1)
+   return weeks
 
 def print_report(subject):
    '''Do various calculations on the subject, then print the results.
@@ -178,4 +198,14 @@ print_histogram(stats['dayOfWeekCreated'].items(), 'Day of Week Created')
 print_histogram(stats['dayOfWeekClosed'].items(), 'Day of Week Closed')
 print_histogram(stats['hourOfDayCreated'].items(), 'Hour of Day Created')
 print_histogram(stats['hourOfDayClosed'].items(), 'Hour of Day Closed')
+
+data = array(stats['weekCreated'].keys())
+minWeek = data.min()
+maxWeek = data.max()
+weekCreated = OrderedDict()
+initialize_ordered_dict(weekCreated, create_week_range(minWeek, maxWeek), 0)
+for key, value in stats['weekCreated'].items():
+   newKey = key.isoformat()
+   weekCreated[newKey] = value
+print_histogram(weekCreated.items(), 'Week Created')
 
