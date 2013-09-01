@@ -3,10 +3,12 @@
 
 Usage:
    github-pr-stats <user> <repo>
+   github-pr-stats --version
    github-pr-stats (-h | --help)
 
 Options:
    -h --help           Show this screen.
+      --version        Print the program's installed version.
 '''
 
 # May you recognize your weaknesses and share your strengths.
@@ -20,7 +22,7 @@ from docopt import docopt
 from envoy import run
 from github3 import authorize
 
-from github_pr_stats import analyze
+from github_pr_stats import analyze, VERSION
 
 # Stack traces are ugly; why would we want to print one on ctrl-c?
 def nice_sigint(signal, frame):
@@ -28,7 +30,7 @@ def nice_sigint(signal, frame):
    sys.exit(0)
 signal.signal(signal.SIGINT, nice_sigint)
 
-arguments = docopt(__doc__)
+arguments = docopt(__doc__, version='github-pr-stats %s' % VERSION)
 
 # Use a stored OAuth token so we don't have to ask for the user's password
 # every time (or save the password on disk!).
