@@ -35,6 +35,7 @@ setup(
       'envoy >= 0.0.2',
       'github3.py >= 0.7, < 0.8',
       'numpy >= 1.7, < 1.8',
+      'ordereddict',
    ],
 )
 

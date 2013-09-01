@@ -5,7 +5,11 @@
 from __future__ import division
 
 import sys
-from collections import defaultdict, OrderedDict
+from collections import defaultdict
+try:
+   from collections import OrderedDict
+except ImportError:
+   from ordereddict import OrderedDict
 from datetime import datetime, timedelta
 
 from ascii_graph import Pyasciigraph
