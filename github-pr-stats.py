@@ -69,6 +69,7 @@ stats = {
    'hourOfDayCreated': OrderedDict(),
    'hourOfDayClosed': OrderedDict(),
    'weekCreated': defaultdict(int),
+   'weekClosed': defaultdict(int),
 }
 dayMapping = {
    0: 'M',
@@ -139,6 +140,9 @@ for pr in repo.iter_pulls(state='closed'):
    weekCreated = (pr.created_at - timedelta(days=pr.created_at.weekday()))
    weekCreated = weekCreated.date() # Discard time information.
    stats['weekCreated'][weekCreated] += 1
+   weekClosed = (pr.closed_at - timedelta(days=pr.closed_at.weekday()))
+   weekClosed = weekClosed.date() # Discard time information.
+   stats['weekClosed'][weekClosed] += 1
 print '\b' * (len(progressMeter) + 1), # +1 for the newline
 
 percentageMerged = round(100 - (stats['count'] / stats['merged']), 2)
@@ -182,6 +186,17 @@ def print_report(subject):
    
    print_histogram(stats[subject+'Histogram'].items())
 
+def print_date_report(subject, name):
+   data = array(stats[subject].keys())
+   minWeek = data.min()
+   maxWeek = data.max()
+   allData = OrderedDict()
+   initialize_ordered_dict(allData, create_week_range(minWeek, maxWeek), 0)
+   for key, value in stats[subject].items():
+      newKey = key.isoformat()
+      allData[newKey] = value
+   print_histogram(allData.items(), name)
+
 def print_histogram(data, label=''):
    # Work around a bug in ascii_graph.
    # https://github.com/kakwa/py-ascii-graph/issues/3
@@ -198,14 +213,6 @@ print_histogram(stats['dayOfWeekCreated'].items(), 'Day of Week Created')
 print_histogram(stats['dayOfWeekClosed'].items(), 'Day of Week Closed')
 print_histogram(stats['hourOfDayCreated'].items(), 'Hour of Day Created')
 print_histogram(stats['hourOfDayClosed'].items(), 'Hour of Day Closed')
-
-data = array(stats['weekCreated'].keys())
-minWeek = data.min()
-maxWeek = data.max()
-weekCreated = OrderedDict()
-initialize_ordered_dict(weekCreated, create_week_range(minWeek, maxWeek), 0)
-for key, value in stats['weekCreated'].items():
-   newKey = key.isoformat()
-   weekCreated[newKey] = value
-print_histogram(weekCreated.items(), 'Week Created')
+print_date_report('weekCreated', 'Week Created')
+print_date_report('weekClosed', 'Week Closed')
 
