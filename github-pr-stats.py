@@ -160,22 +160,22 @@ def print_report(subject):
 
    initialize_ordered_dict(stats[subject+'Histogram'], range(min, max))
    
-   print_histogram(subject+'Histogram')
+   print_histogram(stats[subject+'Histogram'].items())
 
-def print_histogram(key, label=''):
+def print_histogram(data, label=''):
    # Work around a bug in ascii_graph.
    # https://github.com/kakwa/py-ascii-graph/issues/3
    histogram = [(str(key), value) \
                 for (key, value) \
-                in stats[key].items()]
+                in data]
    graph = Pyasciigraph()
    for line in graph.graph(label, histogram):
       print line
 
 print_report('daysOpen')
 print_report('comments')
-print_histogram('dayOfWeekCreated', 'Day of Week Created')
-print_histogram('dayOfWeekClosed', 'Day of Week Closed')
-print_histogram('hourOfDayCreated', 'Hour of Day Created')
-print_histogram('hourOfDayClosed', 'Hour of Day Closed')
+print_histogram(stats['dayOfWeekCreated'].items(), 'Day of Week Created')
+print_histogram(stats['dayOfWeekClosed'].items(), 'Day of Week Closed')
+print_histogram(stats['hourOfDayCreated'].items(), 'Hour of Day Created')
+print_histogram(stats['hourOfDayClosed'].items(), 'Hour of Day Closed')
 
