@@ -1,5 +1,4 @@
-ascii-graph==0.1.0 # This isn't publically available yet.
-                   # https://github.com/kakwa/py-ascii-graph/pull/2
+ascii-graph==0.1.0
 distribute==0.6.34
 docopt==0.6.1
 envoy==0.0.2

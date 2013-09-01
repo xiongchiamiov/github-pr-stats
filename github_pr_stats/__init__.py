@@ -12,7 +12,7 @@ from ascii_graph import Pyasciigraph
 from github3 import login
 from numpy import array, median as calcMedian
 
-VERSION = '0.1.0b2'
+VERSION = '0.1.0'
 
 stats = {}
 dayMapping = {
