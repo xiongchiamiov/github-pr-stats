@@ -1,2 +1,5 @@
 env
+MANIFEST
+dist
+*.egg-info
 
