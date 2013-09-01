@@ -34,7 +34,8 @@ from docopt import docopt
 from envoy import run
 from github3 import authorize
 
-from github_pr_stats import analyze, VERSION
+from github_pr_stats import VERSION
+from github_pr_stats.github_pr_stats import analyze
 
 # Stack traces are ugly; why would we want to print one on ctrl-c?
 def nice_sigint(signal, frame):
