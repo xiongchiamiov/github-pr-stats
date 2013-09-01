@@ -25,7 +25,7 @@ dayMapping = {
    6: 'Su',
 }
 
-def analyze(user, repo, token):
+def analyze(user, repo, token, config):
    gh = login(token=token)
    repo = gh.repository(user, repo)
    stats.update({
@@ -58,51 +58,73 @@ def analyze(user, repo, token):
       print '\b\b\b\b%3d' % pr.number,
       sys.stdout.flush()
       
-      daysOpen = (pr.closed_at - pr.created_at).days
-      comments = len(list(pr.iter_comments()))
-      stats['count'] += 1
-      if pr.is_merged():
-         stats['merged'] += 1
-      stats['daysOpen'].append(daysOpen)
-      stats['daysOpenHistogram'][daysOpen] += 1
-      stats['comments'].append(comments)
-      stats['commentsHistogram'][comments] += 1
-      dayAbbreviation = dayMapping[pr.created_at.weekday()]
-      stats['dayOfWeekCreated'][dayAbbreviation] += 1
-      dayAbbreviation = dayMapping[pr.closed_at.weekday()]
-      stats['dayOfWeekClosed'][dayAbbreviation] += 1
-      stats['hourOfDayCreated'][pr.created_at.hour] += 1
-      stats['hourOfDayClosed'][pr.closed_at.hour] += 1
-      # Store the first day of the week.
-      weekCreated = (pr.created_at - timedelta(days=pr.created_at.weekday()))
-      weekCreated = weekCreated.date() # Discard time information.
-      stats['weekCreated'][weekCreated] += 1
-      weekClosed = (pr.closed_at - timedelta(days=pr.closed_at.weekday()))
-      weekClosed = weekClosed.date() # Discard time information.
-      stats['weekClosed'][weekClosed] += 1
-      stats['userCreating'][pr.user.login] += 1
-      # We don't seem to have information on who closed an issue if they didn't
-      # merge it.
-      if pr.is_merged():
-         # For whatever reason, the user doing the merge isn't part of the initial
-         # data set.
-         pr.refresh()
-         stats['userClosing'][pr.merged_by.login] += 1
+      if config['basicStats']:
+         stats['count'] += 1
+         if pr.is_merged():
+            stats['merged'] += 1
+      if config['daysOpen']:
+         daysOpen = (pr.closed_at - pr.created_at).days
+         stats['daysOpen'].append(daysOpen)
+         stats['daysOpenHistogram'][daysOpen] += 1
+      if config['comments']:
+         comments = len(list(pr.iter_comments()))
+         stats['comments'].append(comments)
+         stats['commentsHistogram'][comments] += 1
+      if config['dayOfWeekCreated']:
+         dayAbbreviation = dayMapping[pr.created_at.weekday()]
+         stats['dayOfWeekCreated'][dayAbbreviation] += 1
+      if config['dayOfWeekClosed']:
+         dayAbbreviation = dayMapping[pr.closed_at.weekday()]
+         stats['dayOfWeekClosed'][dayAbbreviation] += 1
+      if config['hourOfDayCreated']:
+         stats['hourOfDayCreated'][pr.created_at.hour] += 1
+      if config['hourOfDayClosed']:
+         stats['hourOfDayClosed'][pr.closed_at.hour] += 1
+      if config['weekCreated']:
+         # Store the first day of the week.
+         weekCreated = (pr.created_at - timedelta(days=pr.created_at.weekday()))
+         weekCreated = weekCreated.date() # Discard time information.
+         stats['weekCreated'][weekCreated] += 1
+      if config['weekClosed']:
+         weekClosed = (pr.closed_at - timedelta(days=pr.closed_at.weekday()))
+         weekClosed = weekClosed.date() # Discard time information.
+         stats['weekClosed'][weekClosed] += 1
+      if config['userCreating']:
+         stats['userCreating'][pr.user.login] += 1
+      if config['userClosing']:
+         # We don't seem to have information on who closed an issue if they didn't
+         # merge it.
+         if pr.is_merged():
+            # For whatever reason, the user doing the merge isn't part of the initial
+            # data set.
+            pr.refresh()
+            stats['userClosing'][pr.merged_by.login] += 1
    print '\b' * (len(progressMeter) + 1), # +1 for the newline
 
-   percentageMerged = round(100 - (stats['count'] / stats['merged']), 2)
-   print '%s%% (%s of %s) closed pulls merged.' % (percentageMerged, stats['merged'], stats['count'])
+   if config['basicStats']:
+      percentageMerged = round(100 - (stats['count'] / stats['merged']), 2)
+      print '%s%% (%s of %s) closed pulls merged.' % (percentageMerged, stats['merged'], stats['count'])
    
-   print_report('daysOpen')
-   print_report('comments')
-   print_histogram(stats['dayOfWeekCreated'].items(), 'Day of Week Created')
-   print_histogram(stats['dayOfWeekClosed'].items(), 'Day of Week Closed')
-   print_histogram(stats['hourOfDayCreated'].items(), 'Hour of Day Created')
-   print_histogram(stats['hourOfDayClosed'].items(), 'Hour of Day Closed')
-   print_date_report('weekCreated', 'Week Created')
-   print_date_report('weekClosed', 'Week Closed')
-   print_histogram(stats['userCreating'].items(), 'User Creating Pull Request')
-   print_histogram(stats['userClosing'].items(), 'User Merging Pull Request')
+   if config['daysOpen']:
+      print_report('daysOpen')
+   if config['comments']:
+      print_report('comments')
+   if config['dayOfWeekCreated']:
+      print_histogram(stats['dayOfWeekCreated'].items(), 'Day of Week Created')
+   if config['dayOfWeekClosed']:
+      print_histogram(stats['dayOfWeekClosed'].items(), 'Day of Week Closed')
+   if config['hourOfDayCreated']:
+      print_histogram(stats['hourOfDayCreated'].items(), 'Hour of Day Created')
+   if config['hourOfDayClosed']:
+      print_histogram(stats['hourOfDayClosed'].items(), 'Hour of Day Closed')
+   if config['weekCreated']:
+      print_date_report('weekCreated', 'Week Created')
+   if config['weekClosed']:
+      print_date_report('weekClosed', 'Week Closed')
+   if config['userCreating']:
+      print_histogram(stats['userCreating'].items(), 'User Creating Pull Request')
+   if config['userClosing']:
+      print_histogram(stats['userClosing'].items(), 'User Merging Pull Request')
 
 def initialize_ordered_dict(dictionary, keys, value=None):
    '''Initialize a dictionary with a set of ordered keys.

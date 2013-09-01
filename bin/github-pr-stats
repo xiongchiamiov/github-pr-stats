@@ -2,13 +2,24 @@
 '''github-pr-stats
 
 Usage:
-   github-pr-stats <user> <repo>
+   github-pr-stats [options] <user> <repo>
    github-pr-stats --version
    github-pr-stats (-h | --help)
 
 Options:
    -h --help           Show this screen.
       --version        Print the program's installed version.
+      --basic          Basic statistics about merged/closed rate.
+      --days-open      Analyze number of days opened.
+      --comments       Analyze number of comments created.
+      --day-created    Analyze day of the week opened.
+      --day-closed     Analyze day of the week closed.
+      --hour-created   Analyze hour of the day opened.
+      --hour-closed    Analyze hour of the day closed.
+      --week-created   Analyze week opened.
+      --week-closed    Analyze week closed.
+      --user-creating  Analyze user who opened.
+      --user-closing   Analyze user who closed.
 '''
 
 # May you recognize your weaknesses and share your strengths.
@@ -17,6 +28,7 @@ Options:
 
 import signal
 import sys
+from collections import defaultdict
 
 from docopt import docopt
 from envoy import run
@@ -53,5 +65,32 @@ if not token:
    # https://github.com/kennethreitz/envoy/issues/34
    run("git config --global github-pr-stats.token '%s'" % str(token))
 
-analyze(arguments['<user>'], arguments['<repo>'], token)
+config = defaultdict(bool)
+if arguments['--basic']:
+   config['basicStats'] = True
+if arguments['--days-open']:
+   config['daysOpen'] = True
+if arguments['--comments']:
+   config['comments'] = True
+if arguments['--day-created']:
+   config['dayOfWeekCreated'] = True
+if arguments['--day-closed']:
+   config['dayOfWeekClosed'] = True
+if arguments['--hour-created']:
+   config['hourOfDayCreated'] = True
+if arguments['--hour-closed']:
+   config['hourOfDayClosed'] = True
+if arguments['--week-created']:
+   config['weekCreated'] = True
+if arguments['--week-closed']:
+   config['weekClosed'] = True
+if arguments['--user-creating']:
+   config['userCreating'] = True
+if arguments['--user-closing']:
+   config['userClosing'] = True
+# Did we not get *any* data-specifying options?  Default to everything.
+if not config:
+   config = defaultdict(lambda: True)
+
+analyze(arguments['<user>'], arguments['<repo>'], token, config)
 
