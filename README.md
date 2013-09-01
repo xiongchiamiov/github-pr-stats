@@ -14,7 +14,7 @@ Various statistics on the pull requests in your repo.
 * Sums of pulls opened, grouped by hour of the day.
 * ~~Histogram of such.~~
 * Sums of pulls closed, grouped by hour of the day.
-* Histogram of such.
+* ~~Histogram of such.~~
 * Sums of pulls opened, grouped by week.
 * Histogram of such.
 * Sums of pulls closed, grouped by week.
