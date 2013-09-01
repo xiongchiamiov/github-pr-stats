@@ -52,12 +52,11 @@ def analyze(user, repo, token, config):
    initialize_ordered_dict(stats['hourOfDayCreated'], range(24), 0)
    initialize_ordered_dict(stats['hourOfDayClosed'], range(24), 0)
 
-   progressMeter = 'Data fetches remaining:   0'
+   progressMeter = 'Data fetches remaining:    0'
    print progressMeter,
    for pr in repo.iter_pulls(state='closed'):
-      # We'll just assume we won't go over three digits of issues, which is
-      # perhaps a bad assumption.
-      print '\b\b\b\b%3d' % pr.number,
+      # We'll just assume we won't go over four digits of issues.
+      print '\b\b\b\b\b%4d' % pr.number,
       sys.stdout.flush()
       
       if config['basicStats']:
