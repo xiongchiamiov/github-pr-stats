@@ -5,5 +5,6 @@ docopt==0.6.1
 envoy==0.0.2
 github3.py==0.7.0
 numpy==1.7.1
+pypandoc==0.6.0
 requests==1.2.3
 wsgiref==0.1.2
