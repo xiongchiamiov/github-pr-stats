@@ -11,7 +11,7 @@ from github_pr_stats import VERSION
 try:
    import pypandoc
    description = pypandoc.convert('README.md', 'rst')
-except (IOError, ImportError):
+except (IOError, OSError, ImportError):
    description = ''
 try:
    license = open('LICENSE').read()
