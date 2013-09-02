@@ -211,5 +211,7 @@ def print_histogram(data, label=''):
                 in data]
    graph = Pyasciigraph()
    for line in graph.graph(label, histogram):
-      print line
+      # Encode explicitly to get around this bug:
+      # https://github.com/kakwa/py-ascii-graph/issues/4
+      print line.encode('utf-8')
 
