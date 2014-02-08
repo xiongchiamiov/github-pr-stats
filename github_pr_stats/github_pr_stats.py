@@ -60,7 +60,7 @@ def analyze(user, repo, token, config, since=None, until=None):
    if isinstance(until, basestring):
       until = parse(until)
 
-   progressMeter = 'Data fetches remaining:    0'
+   progressMeter = 'Analyzing pull number:     '
    print progressMeter,
    for issue in repo.iter_issues(state='closed', direction='asc', since=since):
       if until and issue.created_at >= until:
