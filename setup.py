@@ -36,6 +36,7 @@ setup(
       'github3.py >= 0.8, < 0.9',
       'numpy >= 1.7, < 1.8',
       'ordereddict',
+      'python-dateutil >= 2.2, < 2.3',
    ],
 )
 

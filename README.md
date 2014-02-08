@@ -21,6 +21,9 @@ Various statistics on the pull requests in your repo.
           --week-closed    Analyze week closed.
           --user-creating  Analyze user who opened.
           --user-closing   Analyze user who closed.
+          --since=<date>   Only consider pull requests opened on or after this
+                           date.
+          --until=<date>   Only consider pull requests opened before this date.
 # Example
 
     [$]> github-pr-stats --basic --user-creating ifixit itbrokeand.ifixit.com

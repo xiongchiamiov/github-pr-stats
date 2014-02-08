@@ -13,6 +13,7 @@ except ImportError:
 from datetime import datetime, timedelta
 
 from ascii_graph import Pyasciigraph
+from dateutil.parser import parse
 from github3 import login
 from numpy import array, median as calcMedian
 
@@ -27,7 +28,7 @@ dayMapping = {
    6: 'Su',
 }
 
-def analyze(user, repo, token, config):
+def analyze(user, repo, token, config, since=None, until=None):
    gh = login(token=token)
    repo = gh.repository(user, repo)
    stats.update({
@@ -52,9 +53,27 @@ def analyze(user, repo, token, config):
    initialize_ordered_dict(stats['hourOfDayCreated'], range(24), 0)
    initialize_ordered_dict(stats['hourOfDayClosed'], range(24), 0)
 
+   # If we get dates in string format, try to parse them out.  But leave Nones
+   # and datetimes alone.
+   if isinstance(since, basestring):
+      since = parse(since)
+   if isinstance(until, basestring):
+      until = parse(until)
+
    progressMeter = 'Data fetches remaining:    0'
    print progressMeter,
-   for pr in repo.iter_pulls(state='closed'):
+   for issue in repo.iter_issues(state='closed', direction='asc', since=since):
+      if until and issue.created_at >= until:
+         break
+      
+      # Pull requests are gimped and not slicable by date.  So we get slice
+      # issues instead and grab the pull requests out of them.  While this will
+      # be more expensive for small repos, it makes it feasible to run
+      # github-pr-stats for small date ranges on repos with many pulls.
+      if not issue.pull_request:
+         continue
+      pr = repo.pull_request(issue.number)
+      
       # We'll just assume we won't go over four digits of issues.
       print '\b\b\b\b\b%4d' % pr.number,
       sys.stdout.flush()

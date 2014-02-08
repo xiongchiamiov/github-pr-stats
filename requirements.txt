@@ -6,6 +6,8 @@ github3.py==0.8.1
 numpy==1.7.1
 ordereddict==1.1
 pypandoc==0.6.0
+python-dateutil==2.2
 requests==2.2.1
+six==1.5.2
 uritemplate.py==0.3.0
 wsgiref==0.1.2
