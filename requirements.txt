@@ -2,8 +2,10 @@ ascii-graph==0.1.0
 distribute==0.6.34
 docopt==0.6.1
 envoy==0.0.2
-github3.py==0.7.0
+github3.py==0.8.1
 numpy==1.7.1
+ordereddict==1.1
 pypandoc==0.6.0
-requests==1.2.3
+requests==2.2.1
+uritemplate.py==0.3.0
 wsgiref==0.1.2

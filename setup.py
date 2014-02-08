@@ -33,12 +33,9 @@ setup(
       'ascii-graph >= 0.1.0',
       'docopt >= 0.6, < 0.7',
       'envoy >= 0.0.2',
-      'github3.py >= 0.7, < 0.8',
+      'github3.py >= 0.8, < 0.9',
       'numpy >= 1.7, < 1.8',
       'ordereddict',
-      # TODO: Remove when this commit hits a release.
-      # https://github.com/sigmavirus24/github3.py/commit/8610230423385d83ca3c946522cbe6ff8f29ea9b
-      'requests >= 1.2.3',
    ],
 )
 
