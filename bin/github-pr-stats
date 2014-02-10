@@ -20,6 +20,7 @@ Options:
       --week-closed    Analyze week closed.
       --user-creating  Analyze user who opened.
       --user-closing   Analyze user who closed.
+      --labels         Analyze attached labels.
       --since=<date>   Only consider pull requests opened on or after this
                        date.
       --until=<date>   Only consider pull requests opened before this date.
@@ -92,6 +93,8 @@ if arguments['--user-creating']:
    config['userCreating'] = True
 if arguments['--user-closing']:
    config['userClosing'] = True
+if arguments['--labels']:
+   config['labels'] = True
 # Did we not get *any* data-specifying options?  Default to everything.
 if not config:
    config = defaultdict(lambda: True)

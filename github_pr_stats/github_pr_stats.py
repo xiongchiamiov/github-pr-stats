@@ -46,6 +46,7 @@ def analyze(user, repo, token, config, since=None, until=None):
       'weekClosed': defaultdict(int),
       'userCreating': defaultdict(int),
       'userClosing': defaultdict(int),
+      'labels': defaultdict(int),
    })
    
    initialize_ordered_dict(stats['dayOfWeekCreated'], dayMapping.values(), 0)
@@ -119,6 +120,9 @@ def analyze(user, repo, token, config, since=None, until=None):
             # data set.
             pr.refresh()
             stats['userClosing'][pr.merged_by.login] += 1
+      if config['labels']:
+         for label in issue.labels:
+            stats['labels'][label.name] += 1
    print '\b' * (len(progressMeter) + 1), # +1 for the newline
 
    if config['basicStats']:
@@ -145,6 +149,8 @@ def analyze(user, repo, token, config, since=None, until=None):
       print_histogram(stats['userCreating'].items(), 'User Creating Pull Request')
    if config['userClosing']:
       print_histogram(stats['userClosing'].items(), 'User Merging Pull Request')
+   if config['labels']:
+      print_histogram(stats['labels'].items(), 'Labels Attached')
 
 def initialize_ordered_dict(dictionary, keys, value=None):
    '''Initialize a dictionary with a set of ordered keys.

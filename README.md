@@ -21,6 +21,7 @@ Various statistics on the pull requests in your repo.
           --week-closed    Analyze week closed.
           --user-creating  Analyze user who opened.
           --user-closing   Analyze user who closed.
+          --labels         Analyze attached labels.
           --since=<date>   Only consider pull requests opened on or after this
                            date.
           --until=<date>   Only consider pull requests opened before this date.
