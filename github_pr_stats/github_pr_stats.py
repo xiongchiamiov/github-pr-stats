@@ -66,6 +66,12 @@ def analyze(user, repo, token, config, since=None, until=None):
    for issue in repo.iter_issues(state='closed', direction='asc', since=since):
       if until and issue.created_at >= until:
          break
+
+      # The 'since' parameter always applies to updates, even if we specify a
+      # 'sort' of, say, creation date, so we can't rely on it to filter out
+      # issues that were closed too long ago.
+      if since and issue.created_at <= since:
+         continue
       
       # Pull requests are gimped and not slicable by date.  So we get slice
       # issues instead and grab the pull requests out of them.  While this will
