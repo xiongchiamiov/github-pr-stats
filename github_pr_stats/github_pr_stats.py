@@ -235,13 +235,8 @@ def print_date_report(subject, name):
    print_histogram(allData.items(), name)
 
 def print_histogram(data, label=''):
-   # Work around a bug in ascii_graph.
-   # https://github.com/kakwa/py-ascii-graph/issues/3
-   histogram = [(str(key), value) \
-                for (key, value) \
-                in data]
    graph = Pyasciigraph()
-   for line in graph.graph(label, histogram):
+   for line in graph.graph(label, data):
       # Encode explicitly to get around this bug:
       # https://github.com/kakwa/py-ascii-graph/issues/4
       print line.encode('utf-8')

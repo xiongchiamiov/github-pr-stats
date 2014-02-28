@@ -30,7 +30,7 @@ setup(
    description = 'Various statistics on the pull requests in your repo.',
    long_description = description,
    install_requires = [
-      'ascii-graph >= 0.1.0',
+      'ascii-graph >= 0.2.0',
       'docopt >= 0.6, < 0.7',
       'envoy >= 0.0.2',
       'github3.py >= 0.8, < 0.9',
