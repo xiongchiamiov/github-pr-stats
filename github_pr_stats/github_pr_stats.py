@@ -235,6 +235,13 @@ def print_date_report(subject, name):
    print_histogram(allData.items(), name)
 
 def print_histogram(data, label=''):
+   # Fill in percentages of the total.
+   for key, datapoint in enumerate(data):
+      name, value = datapoint
+      percentage = (float(value) / stats['count']) * 100 if value else 0
+      name = '(%6.2f%%) %s' % (percentage, name)
+      data[key] = (name, value)
+
    graph = Pyasciigraph()
    for line in graph.graph(label, data):
       # Encode explicitly to get around this bug:
