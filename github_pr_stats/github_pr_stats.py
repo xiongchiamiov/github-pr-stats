@@ -132,8 +132,8 @@ def analyze(user, repo, token, config, since=None, until=None):
    print '\b' * (len(progressMeter) + 1), # +1 for the newline
 
    if config['basicStats']:
-      percentageMerged = round(100 - (stats['count'] / stats['merged']), 2)
-      print '%s%% (%s of %s) closed pulls merged.' % (percentageMerged, stats['merged'], stats['count'])
+      percentageMerged = 100 * (stats['merged'] / stats['count'])
+      print '%.2f%% (%s of %s) closed pulls merged.' % (percentageMerged, stats['merged'], stats['count'])
    
    if config['daysOpen']:
       print_report('daysOpen')
