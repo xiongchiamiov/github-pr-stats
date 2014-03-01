@@ -238,7 +238,7 @@ def print_histogram(data, label=''):
    # Fill in percentages of the total.
    for key, datapoint in enumerate(data):
       name, value = datapoint
-      percentage = (float(value) / stats['count']) * 100 if value else 0
+      percentage = (float(value) / stats['count']) * 100 if stats['count'] else 0
       name = '(%6.2f%%) %s' % (percentage, name)
       data[key] = (name, value)
 
