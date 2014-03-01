@@ -3,7 +3,7 @@ Various statistics on the pull requests in your repo.
 # Usage
 
     Usage:
-       github-pr-stats [options] <user> <repo>
+       github-pr-stats [options] <user> [<repo>]
        github-pr-stats --version
        github-pr-stats (-h | --help)
     

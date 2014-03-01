@@ -2,7 +2,7 @@
 '''github-pr-stats
 
 Usage:
-   github-pr-stats [options] <user> <repo>
+   github-pr-stats [options] <user> [<repo>]
    github-pr-stats --version
    github-pr-stats (-h | --help)
 
@@ -99,6 +99,6 @@ if arguments['--labels']:
 if not config:
    config = defaultdict(lambda: True)
 
-analyze(arguments['<user>'], arguments['<repo>'], token, config, \
+analyze(token, config, arguments['<user>'], arguments['<repo>'], \
         since=arguments['--since'], until=arguments['--until'])
 

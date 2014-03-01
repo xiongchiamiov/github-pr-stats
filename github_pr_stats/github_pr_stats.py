@@ -28,9 +28,8 @@ dayMapping = {
    6: 'Su',
 }
 
-def analyze(user, repo, token, config, since=None, until=None):
+def analyze(token, config, user, repo=None, since=None, until=None):
    gh = login(token=token)
-   repo = gh.repository(user, repo)
    stats.update({
       'count': 0,
       'merged': 0,
@@ -63,73 +62,80 @@ def analyze(user, repo, token, config, since=None, until=None):
 
    progressMeter = 'Analyzing pull number:     '
    print progressMeter,
-   for issue in repo.iter_issues(state='closed', direction='asc', since=since):
-      if until and issue.created_at >= until:
-         break
 
-      # The 'since' parameter always applies to updates, even if we specify a
-      # 'sort' of, say, creation date, so we can't rely on it to filter out
-      # issues that were closed too long ago.
-      if since and issue.created_at <= since:
-         continue
-      
-      # Pull requests are gimped and not slicable by date.  So we get slice
-      # issues instead and grab the pull requests out of them.  While this will
-      # be more expensive for small repos, it makes it feasible to run
-      # github-pr-stats for small date ranges on repos with many pulls.
-      if not issue.pull_request:
-         continue
-      pr = repo.pull_request(issue.number)
-      
-      # We'll just assume we won't go over four digits of issues.
-      print '\b\b\b\b\b%4d' % pr.number,
-      sys.stdout.flush()
-      
-      if config['basicStats']:
-         stats['count'] += 1
-         if pr.is_merged():
-            stats['merged'] += 1
-      if config['daysOpen']:
-         daysOpen = (pr.closed_at - pr.created_at).days
-         stats['daysOpen'].append(daysOpen)
-         stats['daysOpenHistogram'][daysOpen] += 1
-      if config['comments']:
-         comments = len(list(pr.iter_comments()))
-         stats['comments'].append(comments)
-         stats['commentsHistogram'][comments] += 1
-      if config['dayOfWeekCreated']:
-         dayAbbreviation = dayMapping[pr.created_at.weekday()]
-         stats['dayOfWeekCreated'][dayAbbreviation] += 1
-      if config['dayOfWeekClosed']:
-         dayAbbreviation = dayMapping[pr.closed_at.weekday()]
-         stats['dayOfWeekClosed'][dayAbbreviation] += 1
-      if config['hourOfDayCreated']:
-         stats['hourOfDayCreated'][pr.created_at.hour] += 1
-      if config['hourOfDayClosed']:
-         stats['hourOfDayClosed'][pr.closed_at.hour] += 1
-      if config['weekCreated']:
-         # Store the first day of the week.
-         weekCreated = (pr.created_at - timedelta(days=pr.created_at.weekday()))
-         weekCreated = weekCreated.date() # Discard time information.
-         stats['weekCreated'][weekCreated] += 1
-      if config['weekClosed']:
-         weekClosed = (pr.closed_at - timedelta(days=pr.closed_at.weekday()))
-         weekClosed = weekClosed.date() # Discard time information.
-         stats['weekClosed'][weekClosed] += 1
-      if config['userCreating']:
-         stats['userCreating'][pr.user.login] += 1
-      if config['userClosing']:
-         # We don't seem to have information on who closed an issue if they didn't
-         # merge it.
-         if pr.is_merged():
-            # For whatever reason, the user doing the merge isn't part of the initial
-            # data set.
-            pr.refresh()
-            stats['userClosing'][pr.merged_by.login] += 1
-      if config['labels']:
-         for label in issue.labels:
-            stats['labels'][label.name] += 1
-   print '\b' * (len(progressMeter) + 1), # +1 for the newline
+   if repo is None:
+      repos = gh.iter_user_repos(user)
+   else:
+      repos = [gh.repository(user, repo)]
+   
+   for repo in repos:
+      for issue in repo.iter_issues(state='closed', direction='asc', since=since):
+         if until and issue.created_at >= until:
+            break
+
+         # The 'since' parameter always applies to updates, even if we specify a
+         # 'sort' of, say, creation date, so we can't rely on it to filter out
+         # issues that were closed too long ago.
+         if since and issue.created_at <= since:
+            continue
+         
+         # Pull requests are gimped and not slicable by date.  So we get slice
+         # issues instead and grab the pull requests out of them.  While this will
+         # be more expensive for small repos, it makes it feasible to run
+         # github-pr-stats for small date ranges on repos with many pulls.
+         if not issue.pull_request:
+            continue
+         pr = repo.pull_request(issue.number)
+         
+         # We'll just assume we won't go over four digits of issues.
+         print '\b\b\b\b\b%4d' % pr.number,
+         sys.stdout.flush()
+         
+         if config['basicStats']:
+            stats['count'] += 1
+            if pr.is_merged():
+               stats['merged'] += 1
+         if config['daysOpen']:
+            daysOpen = (pr.closed_at - pr.created_at).days
+            stats['daysOpen'].append(daysOpen)
+            stats['daysOpenHistogram'][daysOpen] += 1
+         if config['comments']:
+            comments = len(list(pr.iter_comments()))
+            stats['comments'].append(comments)
+            stats['commentsHistogram'][comments] += 1
+         if config['dayOfWeekCreated']:
+            dayAbbreviation = dayMapping[pr.created_at.weekday()]
+            stats['dayOfWeekCreated'][dayAbbreviation] += 1
+         if config['dayOfWeekClosed']:
+            dayAbbreviation = dayMapping[pr.closed_at.weekday()]
+            stats['dayOfWeekClosed'][dayAbbreviation] += 1
+         if config['hourOfDayCreated']:
+            stats['hourOfDayCreated'][pr.created_at.hour] += 1
+         if config['hourOfDayClosed']:
+            stats['hourOfDayClosed'][pr.closed_at.hour] += 1
+         if config['weekCreated']:
+            # Store the first day of the week.
+            weekCreated = (pr.created_at - timedelta(days=pr.created_at.weekday()))
+            weekCreated = weekCreated.date() # Discard time information.
+            stats['weekCreated'][weekCreated] += 1
+         if config['weekClosed']:
+            weekClosed = (pr.closed_at - timedelta(days=pr.closed_at.weekday()))
+            weekClosed = weekClosed.date() # Discard time information.
+            stats['weekClosed'][weekClosed] += 1
+         if config['userCreating']:
+            stats['userCreating'][pr.user.login] += 1
+         if config['userClosing']:
+            # We don't seem to have information on who closed an issue if they didn't
+            # merge it.
+            if pr.is_merged():
+               # For whatever reason, the user doing the merge isn't part of the initial
+               # data set.
+               pr.refresh()
+               stats['userClosing'][pr.merged_by.login] += 1
+         if config['labels']:
+            for label in issue.labels:
+               stats['labels'][label.name] += 1
+      print '\b' * (len(progressMeter) + 1), # +1 for the newline
 
    if config['basicStats']:
       percentageMerged = 100 * (stats['merged'] / stats['count'])
