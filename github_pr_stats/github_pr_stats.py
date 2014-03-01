@@ -69,6 +69,9 @@ def analyze(token, config, user, repo=None, since=None, until=None):
       repos = [gh.repository(user, repo)]
    
    for repo in repos:
+      if not repo.has_issues:
+         continue
+      
       for issue in repo.iter_issues(state='closed', direction='asc', since=since):
          if until and issue.created_at >= until:
             break
