@@ -60,9 +60,6 @@ def analyze(token, config, user, repo=None, since=None, until=None):
    if isinstance(until, basestring):
       until = parse(until)
 
-   progressMeter = 'Analyzing pull number:     '
-   print progressMeter,
-
    if repo is None:
       repos = gh.iter_user_repos(user)
    else:
@@ -72,6 +69,9 @@ def analyze(token, config, user, repo=None, since=None, until=None):
       if not repo.has_issues:
          continue
       
+      progressMeter = 'In %s, analyzing pull number:     ' % repo
+      print progressMeter,
+
       for issue in repo.iter_issues(state='closed', direction='asc', since=since):
          if until and issue.created_at >= until:
             break
