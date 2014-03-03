@@ -138,6 +138,8 @@ def analyze(token, config, user, repo=None, since=None, until=None):
          if config['labels']:
             for label in issue.labels:
                stats['labels'][label.name] += 1
+            if not issue.labels:
+               stats['labels']['<no label>'] += 1
       print '\b' * (len(progressMeter) + 1), # +1 for the newline
    print "\n"
 
