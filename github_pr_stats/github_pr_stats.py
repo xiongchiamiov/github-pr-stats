@@ -139,6 +139,7 @@ def analyze(token, config, user, repo=None, since=None, until=None):
             for label in issue.labels:
                stats['labels'][label.name] += 1
       print '\b' * (len(progressMeter) + 1), # +1 for the newline
+   print "\n"
 
    if config['basicStats']:
       percentageMerged = 100 * (stats['merged'] / stats['count'])
