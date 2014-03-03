@@ -94,8 +94,8 @@ def analyze(token, config, user, repo=None, since=None, until=None):
          print '\b\b\b\b\b%4d' % pr.number,
          sys.stdout.flush()
          
+         stats['count'] += 1
          if config['basicStats']:
-            stats['count'] += 1
             if pr.is_merged():
                stats['merged'] += 1
          if config['daysOpen']:
