@@ -8,23 +8,29 @@ Various statistics on the pull requests in your repo.
        github-pr-stats (-h | --help)
     
     Options:
-       -h --help           Show this screen.
-          --version        Print the program's installed version.
-          --basic          Basic statistics about merged/closed rate.
-          --days-open      Analyze number of days opened.
-          --comments       Analyze number of comments created.
-          --day-created    Analyze day of the week opened.
-          --day-closed     Analyze day of the week closed.
-          --hour-created   Analyze hour of the day opened.
-          --hour-closed    Analyze hour of the day closed.
-          --week-created   Analyze week opened.
-          --week-closed    Analyze week closed.
-          --user-creating  Analyze user who opened.
-          --user-closing   Analyze user who closed.
-          --labels         Analyze attached labels.
-          --since=<date>   Only consider pull requests opened on or after this
-                           date.
-          --until=<date>   Only consider pull requests opened before this date.
+       -h --help                     Show this screen.
+          --version                  Print the program's installed version.
+          --basic                    Basic statistics about merged/closed rate.
+          --days-open                Analyze number of days opened.
+          --comments                 Analyze number of comments created.
+          --day-created              Analyze day of the week opened.
+          --day-closed               Analyze day of the week closed.
+          --hour-created             Analyze hour of the day opened.
+          --hour-closed              Analyze hour of the day closed.
+          --week-created             Analyze week opened.
+          --week-closed              Analyze week closed.
+          --user-creating            Analyze user who opened.
+          --user-closing             Analyze user who closed.
+          --labels                   Analyze attached labels.
+          --additions                Analyze number of lines added.
+          --deletions                Analyze number of lines deleted.
+          --bucketSize=<bucketSize>  The size of the display groups for line
+                                     additions and deletions. [default: 10]
+          --since=<date>             Only consider pull requests opened on or after
+                                     this date.
+          --until=<date>             Only consider pull requests opened before this
+                                     date.
+
 # Example
 
     [$]> github-pr-stats --basic --user-creating ifixit itbrokeand.ifixit.com

@@ -28,7 +28,7 @@ dayMapping = {
    6: 'Su',
 }
 
-def analyze(token, config, user, repo=None, since=None, until=None):
+def analyze(token, config, user, repo=None, since=None, until=None, bucketSize=10):
    gh = login(token=token)
    stats.update({
       'count': 0,
@@ -46,6 +46,10 @@ def analyze(token, config, user, repo=None, since=None, until=None):
       'userCreating': defaultdict(int),
       'userClosing': defaultdict(int),
       'labels': defaultdict(int),
+      'additions': [],
+      'additionsHistogram': OrderedDict(),
+      'deletions': [],
+      'deletionsHistogram': OrderedDict(),
    })
    
    initialize_ordered_dict(stats['dayOfWeekCreated'], dayMapping.values(), 0)
@@ -140,6 +144,10 @@ def analyze(token, config, user, repo=None, since=None, until=None):
                stats['labels'][label.name] += 1
             if not issue.labels:
                stats['labels']['<no label>'] += 1
+         if config['additions']:
+            stats['additions'].append(pr.additions)
+         if config['deletions']:
+            stats['deletions'].append(pr.deletions)
       print '\b' * (len(progressMeter) + 1), # +1 for the newline
    print "\n"
 
@@ -169,6 +177,10 @@ def analyze(token, config, user, repo=None, since=None, until=None):
       print_histogram(stats['userClosing'].items(), 'User Merging Pull Request')
    if config['labels']:
       print_histogram(stats['labels'].items(), 'Labels Attached')
+   if config['additions']:
+      print_diff_report('additions', bucketSize)
+   if config['deletions']:
+      print_diff_report('deletions', bucketSize)
 
 def initialize_ordered_dict(dictionary, keys, value=None):
    '''Initialize a dictionary with a set of ordered keys.
@@ -211,6 +223,23 @@ def create_week_range(start, finish):
       week += timedelta(weeks=1)
    return weeks
 
+def bucket_value(value, bucketSize):
+   '''Determine which bucket a value resides in.
+
+   For instance, given a bucketSize of 10, the values 10, 16, and 19 all reside
+   in the bucket 10-19, while 20 is in the 20-29 bucket.
+   '''
+   bottom = (value // bucketSize) * bucketSize
+   top = bottom + bucketSize - 1
+   return '%s-%s' % (bottom, top)
+
+def bucketed_range(min, max, bucketSize):
+   values = []
+   for value in range(min, max, bucketSize):
+      top = value + bucketSize - 1
+      values.append('%s-%s' % (value, top))
+   return values
+
 def print_report(subject):
    '''Do various calculations on the subject, then print the results.
    
@@ -245,6 +274,27 @@ def print_date_report(subject, name):
       newKey = key.isoformat()
       allData[newKey] = value
    print_histogram(allData.items(), name)
+
+def print_diff_report(subject, bucketSize):
+   # It'd be a lot nicer to do these calculations using
+   # http://www.python.org/dev/peps/pep-0450/ or even
+   # https://pypi.python.org/pypi/stats/ instead of the
+   # sometimes-difficult-to-install Numpy.  But alas, we're stuck with that for
+   # Python 2.x.
+   data = array(stats[subject])
+   mean = data.mean()
+   median = calcMedian(data) # I don't know why narray doesn't have this as a method.
+   stdDev = data.std()
+   min = data.min()
+   max = data.max()
+   print '%s: %s (mean) %s (median) %s (std. dev.) %s (min) %s (max)' \
+       % (subject, mean, median, stdDev, min, max)
+
+   initialize_ordered_dict(stats[subject+'Histogram'], bucketed_range(min, max, bucketSize), 0)
+   for value in data:
+      bucket = bucket_value(value, bucketSize)
+      stats[subject+'Histogram'][bucket] += 1
+   print_histogram(stats[subject+'Histogram'].items())
 
 def print_histogram(data, label=''):
    # Fill in percentages of the total.
