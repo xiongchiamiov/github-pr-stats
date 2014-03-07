@@ -246,28 +246,20 @@ def print_report(subject):
    This should be like, 8 different functions or something, but bad API design
    is easier.
    '''
-   # It'd be a lot nicer to do these calculations using
-   # http://www.python.org/dev/peps/pep-0450/ or even
-   # https://pypi.python.org/pypi/stats/ instead of the
-   # sometimes-difficult-to-install Numpy.  But alas, we're stuck with that for
-   # Python 2.x.
-   data = array(stats[subject])
-   mean = data.mean()
-   median = calcMedian(data) # I don't know why narray doesn't have this as a method.
-   stdDev = data.std()
-   min = data.min()
-   max = data.max()
-   print '%s: %s (mean) %s (median) %s (std. dev.) %s (min) %s (max)' \
-       % (subject, mean, median, stdDev, min, max)
+   statsAnalysis = StatsAnalysis(array(stats[subject]), subject)
+   print statsAnalysis
 
-   initialize_ordered_dict(stats[subject+'Histogram'], range(min, max))
+   initialize_ordered_dict(stats[subject+'Histogram'], range(statsAnalysis.min, statsAnalysis.max))
    
    print_histogram(stats[subject+'Histogram'].items())
 
 def print_date_report(subject, name):
+   # Calculate only the min and the max because the mean of a series of weeks
+   # doesn't make much sense.
    data = array(stats[subject].keys())
    minWeek = data.min()
    maxWeek = data.max()
+   
    allData = OrderedDict()
    initialize_ordered_dict(allData, create_week_range(minWeek, maxWeek), 0)
    for key, value in stats[subject].items():
@@ -276,25 +268,33 @@ def print_date_report(subject, name):
    print_histogram(allData.items(), name)
 
 def print_diff_report(subject, bucketSize):
-   # It'd be a lot nicer to do these calculations using
-   # http://www.python.org/dev/peps/pep-0450/ or even
-   # https://pypi.python.org/pypi/stats/ instead of the
-   # sometimes-difficult-to-install Numpy.  But alas, we're stuck with that for
-   # Python 2.x.
    data = array(stats[subject])
-   mean = data.mean()
-   median = calcMedian(data) # I don't know why narray doesn't have this as a method.
-   stdDev = data.std()
-   min = data.min()
-   max = data.max()
-   print '%s: %s (mean) %s (median) %s (std. dev.) %s (min) %s (max)' \
-       % (subject, mean, median, stdDev, min, max)
+   statsAnalysis = StatsAnalysis(data, subject)
+   print statsAnalysis
 
-   initialize_ordered_dict(stats[subject+'Histogram'], bucketed_range(min, max, bucketSize), 0)
+   initialize_ordered_dict(stats[subject+'Histogram'], bucketed_range(statsAnalysis.min, statsAnalysis.max, bucketSize), 0)
    for value in data:
       bucket = bucket_value(value, bucketSize)
       stats[subject+'Histogram'][bucket] += 1
    print_histogram(stats[subject+'Histogram'].items())
+
+class StatsAnalysis(object):
+   def __init__(self, data, subject=''):
+      self.subject = subject
+      # It'd be a lot nicer to do these calculations using
+      # http://www.python.org/dev/peps/pep-0450/ or even
+      # https://pypi.python.org/pypi/stats/ instead of the
+      # sometimes-difficult-to-install Numpy.  But alas, we're stuck with that for
+      # Python 2.x.
+      self.mean = data.mean()
+      self.median = calcMedian(data) # I don't know why narray doesn't have self as a method.
+      self.stdDev = data.std()
+      self.min = data.min()
+      self.max = data.max()
+
+   def __str__(self):
+      return '{subject}: {mean} (mean) {median} (median) {stdDev} (std. dev.) {min} (min) {max} (max)'.format(**vars(self))
+
 
 def print_histogram(data, label=''):
    # Fill in percentages of the total.
