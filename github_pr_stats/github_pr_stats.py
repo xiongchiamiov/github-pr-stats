@@ -235,7 +235,7 @@ def bucket_value(value, bucketSize):
 
 def bucketed_range(min, max, bucketSize):
    values = []
-   for value in range(min, max, bucketSize):
+   for value in range(min, max + 1, bucketSize):
       top = value + bucketSize - 1
       values.append('%s-%s' % (value, top))
    return values
