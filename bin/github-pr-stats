@@ -54,6 +54,12 @@ signal.signal(signal.SIGINT, nice_sigint)
 
 arguments = docopt(__doc__, version='github-pr-stats %s' % VERSION)
 
+try:
+   arguments['--bucketSize'] = int(arguments['--bucketSize'])
+except ValueError:
+   sys.stderr.write('bucketSize must be an integer!\n')
+   sys.exit(1)
+
 # Use a stored OAuth token so we don't have to ask for the user's password
 # every time (or save the password on disk!).
 token = run('git config --global github-pr-stats.token').std_out.strip()
@@ -110,5 +116,5 @@ if not config:
 
 analyze(token, config, arguments['<user>'], arguments['<repo>'], \
         since=arguments['--since'], until=arguments['--until'], \
-        bucketSize=int(arguments['--bucketSize']))
+        bucketSize=arguments['--bucketSize'])
 
