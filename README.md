@@ -77,6 +77,10 @@ information.
 
 # Changelog
 
+## 0.5
+
+* (Feature) Add plugin architecture.
+
 ## 0.4
 
 * (Feature) Add percentages to all data points.
