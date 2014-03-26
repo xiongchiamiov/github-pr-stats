@@ -29,6 +29,7 @@ Options:
                                  this date.
       --until=<date>             Only consider pull requests opened before this
                                  date.
+      --plugins=<plugins>        Comma-separated list of plugins to load.
 '''
 
 # May you recognize your weaknesses and share your strengths.
@@ -114,7 +115,10 @@ if arguments['--deletions']:
 if not config:
    config = defaultdict(lambda: True)
 
+if arguments['--plugins']:
+   arguments['--plugins'] = arguments['--plugins'].split(',')
+
 analyze(token, config, arguments['<user>'], arguments['<repo>'], \
         since=arguments['--since'], until=arguments['--until'], \
-        bucketSize=arguments['--bucketSize'])
+        bucketSize=arguments['--bucketSize'], plugins=arguments['--plugins'])
 

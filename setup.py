@@ -34,6 +34,7 @@ setup(
       'docopt >= 0.6, < 0.7',
       'envoy >= 0.0.2',
       'github3.py >= 0.8, < 0.9',
+      'importlib >= 1.0',
       'numpy >= 1.7, < 1.8',
       'ordereddict',
       'python-dateutil >= 2.2, < 2.3',

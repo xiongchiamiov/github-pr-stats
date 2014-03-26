@@ -15,6 +15,7 @@ from datetime import datetime, timedelta
 from ascii_graph import Pyasciigraph
 from dateutil.parser import parse
 from github3 import login
+from importlib import import_module
 from numpy import array, median as calcMedian
 
 stats = {}
@@ -28,7 +29,8 @@ dayMapping = {
    6: 'Su',
 }
 
-def analyze(token, config, user, repo=None, since=None, until=None, bucketSize=10):
+def analyze(token, config, user, repo=None, since=None, until=None, \
+            bucketSize=10, plugins=None):
    gh = login(token=token)
    stats.update({
       'count': 0,
@@ -51,6 +53,12 @@ def analyze(token, config, user, repo=None, since=None, until=None, bucketSize=1
       'deletions': [],
       'deletionsHistogram': OrderedDict(),
    })
+
+   if plugins is None:
+      plugins = []
+   plugins = [import_module(plugin) for plugin in plugins]
+   for plugin in plugins:
+      plugin.setup(globals(), locals())
    
    initialize_ordered_dict(stats['dayOfWeekCreated'], dayMapping.values(), 0)
    initialize_ordered_dict(stats['dayOfWeekClosed'], dayMapping.values(), 0)
@@ -148,6 +156,9 @@ def analyze(token, config, user, repo=None, since=None, until=None, bucketSize=1
             stats['additions'].append(pr.additions)
          if config['deletions']:
             stats['deletions'].append(pr.deletions)
+
+         for plugin in plugins:
+            plugin.analyze_pull(globals(), locals())
       print '\b' * (len(progressMeter) + 1), # +1 for the newline
    print "\n"
 
@@ -181,6 +192,9 @@ def analyze(token, config, user, repo=None, since=None, until=None, bucketSize=1
       print_diff_report('additions', bucketSize)
    if config['deletions']:
       print_diff_report('deletions', bucketSize)
+
+   for plugin in plugins:
+      plugin.print_report(globals(), locals())
 
 def initialize_ordered_dict(dictionary, keys, value=None):
    '''Initialize a dictionary with a set of ordered keys.

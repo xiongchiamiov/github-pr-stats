@@ -30,6 +30,7 @@ Various statistics on the pull requests in your repo.
                                      this date.
           --until=<date>             Only consider pull requests opened before this
                                      date.
+          --plugins=<plugins>        Comma-separated list of plugins to load.
 
 # Example
 
@@ -57,6 +58,22 @@ I highly recommend using virtualenv:
     [$]> source env/bin/activate
     [$]> pip install -r requirements.txt
     [$]> pip install -e . # So we can import the version from inside bin/ .
+
+# Plugins
+
+github-pr-stats has a plugin architecture to allow you to run arbitrary
+additional code without hacking the source.
+
+A plugin should implement three functions that gain access to the full
+environment at different points in the analysis process:
+
+1. `setup(globalEnv, localEnv)` - called once when we first initialize
+   variables
+2. `analyze_pull(globalEnv, localEnv)` - called for every pull request
+3. `print_report(globalEnv, localEnv)` - called once after all analysis is done
+
+Take a look at the examples in `github_pr_stats/example_plugins/` for more
+information.
 
 # Changelog
 
