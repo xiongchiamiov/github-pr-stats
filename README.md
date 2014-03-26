@@ -58,3 +58,14 @@ I highly recommend using virtualenv:
     [$]> pip install -r requirements.txt
     [$]> pip install -e . # So we can import the version from inside bin/ .
 
+# Changelog
+
+## 0.4
+
+* (Feature) Add percentages to all data points.
+* (Feature) Optionally analyze all of a user's repos.
+* (Feature) `--labels` now shows the count of pulls without a label.
+* (Feature) Add LOC analysis with `--additions` and `--deletions`.
+* (Bugfix) Fix broken mean in `--basic`.
+* (Bugfix) Don't error on repos without issues.
+
