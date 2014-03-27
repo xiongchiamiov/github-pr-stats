@@ -77,6 +77,14 @@ information.
 
 # Changelog
 
+## 0.5.2
+
+* (Bugfix) Allow importing of plugins on systems using `pip install`.
+
+## 0.5.1
+
+Pulled.
+
 ## 0.5
 
 * (Feature) Add plugin architecture.

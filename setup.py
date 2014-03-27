@@ -23,7 +23,7 @@ setup(
    version = VERSION,
    author = 'James Pearson',
    author_email = 'pearson@changedmy.name',
-   packages = ['github_pr_stats'],
+   packages = ['github_pr_stats', 'github_pr_stats.example_plugins'],
    scripts = ['bin/github-pr-stats'],
    url = 'https://github.com/xiongchiamiov/github-pr-stats',
    license = license,
