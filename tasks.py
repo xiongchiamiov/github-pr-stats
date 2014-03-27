@@ -6,5 +6,6 @@ def doc():
 
 @task
 def publish():
+   run('rm MANIFEST')
    run('./setup.py sdist upload')
 
