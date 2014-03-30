@@ -30,8 +30,8 @@ dayMapping = {
 }
 
 def analyze(token, config, user, repo=None, since=None, until=None, \
-            bucketSize=10, plugins=None):
-   gh = login(token=token)
+            bucketSize=10, plugins=None, url=None):
+   gh = login(token=token, url=url)
    stats.update({
       'count': 0,
       'merged': 0,

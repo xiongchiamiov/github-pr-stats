@@ -9,6 +9,7 @@ Usage:
 Options:
    -h --help                     Show this screen.
       --version                  Print the program's installed version.
+      --github-url=<url>         Github Enterprise URL.
       --basic                    Basic statistics about merged/closed rate.
       --days-open                Analyze number of days opened.
       --comments                 Analyze number of comments created.
@@ -39,13 +40,34 @@ Options:
 import signal
 import sys
 from collections import defaultdict
+from urlparse import urlsplit
 
 from docopt import docopt
 from envoy import run
-from github3 import authorize
+from github3 import GitHub, GitHubEnterprise
 
 from github_pr_stats import VERSION
 from github_pr_stats.github_pr_stats import analyze
+
+def authorize(login, password, scopes, note='', note_url='', client_id='',
+              client_secret='', url=None):
+   """Obtain an authorization token for the GitHub API.
+
+   :param str login: (required)
+   :param str password: (required)
+   :param list scopes: (required), areas you want this token to apply to,
+      i.e., 'gist', 'user'
+   :param str note: (optional), note about the authorization
+   :param str note_url: (optional), url for the application
+   :param str client_id: (optional), 20 character OAuth client key for which
+      to create a token
+   :param str client_secret: (optional), 40 character OAuth client secret for
+      which to create the token
+   :returns: :class:`Authorization <Authorization>`
+
+   """
+   gh = GitHubEnterprise(url) if url is not None else GitHub()
+   return gh.authorize(login, password, scopes, note, note_url, client_id, client_secret)
 
 # Stack traces are ugly; why would we want to print one on ctrl-c?
 def nice_sigint(signal, frame):
@@ -61,9 +83,14 @@ except ValueError:
    sys.stderr.write('bucketSize must be an integer!\n')
    sys.exit(1)
 
+githubUrl = arguments['--github-url']
+githubHost = 'github.com'
+if githubUrl:
+   githubHost = urlsplit(githubUrl, 'http').hostname
+
 # Use a stored OAuth token so we don't have to ask for the user's password
 # every time (or save the password on disk!).
-token = run('git config --global github-pr-stats.token').std_out.strip()
+token = run('git config --global github-pr-stats.%s.token' % githubHost).std_out.strip()
 if not token:
    from getpass import getpass
    user = password = ''
@@ -76,11 +103,12 @@ if not token:
    auth = authorize(user, password,
                     scopes=['repo'],
                     note='github-pr-stats',
-                    note_url='https://github.com/xiongchiamiov/github-pr-stats')
+                    note_url='https://github.com/xiongchiamiov/github-pr-stats',
+                    url=githubUrl)
    token = auth.token
    # We need to un-unicode token for now.
    # https://github.com/kennethreitz/envoy/issues/34
-   run("git config --global github-pr-stats.token '%s'" % str(token))
+   run("git config --global github-pr-stats.%s.token '%s'" % (githubHost, str(token)))
 
 config = defaultdict(bool)
 if arguments['--basic']:
@@ -120,5 +148,5 @@ if arguments['--plugins']:
 
 analyze(token, config, arguments['<user>'], arguments['<repo>'], \
         since=arguments['--since'], until=arguments['--until'], \
-        bucketSize=arguments['--bucketSize'], plugins=arguments['--plugins'])
+        bucketSize=arguments['--bucketSize'], plugins=arguments['--plugins'], url=githubUrl)
 
