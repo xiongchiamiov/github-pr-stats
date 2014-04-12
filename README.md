@@ -10,6 +10,7 @@ Various statistics on the pull requests in your repo.
     Options:
        -h --help                     Show this screen.
           --version                  Print the program's installed version.
+          --github-url=<url>         Github Enterprise URL.
           --basic                    Basic statistics about merged/closed rate.
           --days-open                Analyze number of days opened.
           --comments                 Analyze number of comments created.
