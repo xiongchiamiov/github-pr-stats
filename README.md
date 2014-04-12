@@ -78,6 +78,12 @@ information.
 
 # Changelog
 
+## 0.6
+
+* (Feature) Add Github Enterprise support (#3, @arikon).  You'll need to
+  reauthenticate or change the `[github-pr-stats]` section in `~/.gitconfig` to
+  `[github-pr-stats "github.com"]`.
+
 ## 0.5.2
 
 * (Bugfix) Allow importing of plugins on systems using `pip install`.
