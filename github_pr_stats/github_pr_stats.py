@@ -237,21 +237,21 @@ def create_week_range(start, finish):
       week += timedelta(weeks=1)
    return weeks
 
-def bucket_value(value, bucketSize):
+def bucket_value(value, bucketSize, valueLength=0):
    '''Determine which bucket a value resides in.
 
-   For instance, given a bucketSize of 10, the values 10, 16, and 19 all reside
-   in the bucket 10-19, while 20 is in the 20-29 bucket.
+   For instance, given a bucketSize of 10, for the values 10, 16, and 19,
+   10 goes into bucket 1-10, 16 and 19 go into the bucket 11-20.
    '''
    bottom = (value // bucketSize) * bucketSize
-   top = bottom + bucketSize - 1
-   return '%s-%s' % (bottom, top)
+   top = bottom + bucketSize
+   return '{0:{width}}-{1:{width}}'.format(bottom + 1, top, width=valueLength)
 
-def bucketed_range(min, max, bucketSize):
+def bucketed_range(min, max, bucketSize, valueLength=0):
    values = []
    for value in range(min, max + 1, bucketSize):
       top = value + bucketSize - 1
-      values.append('%s-%s' % (value, top))
+      values.append('{0:{width}}-{1:{width}}'.format(value, top, width=valueLength))
    return values
 
 def print_report(subject):
@@ -286,9 +286,15 @@ def print_diff_report(subject, bucketSize):
    statsAnalysis = StatsAnalysis(data, subject)
    print statsAnalysis
 
-   initialize_ordered_dict(stats[subject+'Histogram'], bucketed_range(statsAnalysis.min, statsAnalysis.max, bucketSize), 0)
+   valueLength = len(str(statsAnalysis.max))
+   initialize_ordered_dict(stats[subject+'Histogram'],
+                           bucketed_range(statsAnalysis.min,
+                                          statsAnalysis.max,
+                                          bucketSize,
+                                          valueLength),
+                           0)
    for value in data:
-      bucket = bucket_value(value, bucketSize)
+      bucket = bucket_value(value, bucketSize, valueLength)
       stats[subject+'Histogram'][bucket] += 1
    print_histogram(stats[subject+'Histogram'].items())
 
