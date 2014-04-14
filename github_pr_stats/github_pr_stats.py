@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # May you recognize your weaknesses and share your strengths.
 # May you share freely, never taking more than you give.
 # May you find love and love everyone you find.
@@ -240,19 +241,42 @@ def create_week_range(start, finish):
 def bucket_value(value, bucketSize):
    '''Determine which bucket a value resides in.
 
-   For instance, given a bucketSize of 10, the values 10, 16, and 19 all reside
-   in the bucket 10-19, while 20 is in the 20-29 bucket.
+   >>> bucket_value(1, 10)
+   0
+   >>> bucket_value(9, 10)
+   0
+   >>> bucket_value(10, 10)
+   1
+   >>> bucket_value(0, 10)
+   Traceback (most recent call last):
+      ...
+   ValueError: value must be positive
    '''
-   bottom = (value // bucketSize) * bucketSize
-   top = bottom + bucketSize - 1
-   return '%s-%s' % (bottom, top)
+   if value <= 0:
+      raise ValueError('value must be positive')
+   return value // bucketSize
 
 def bucketed_range(min, max, bucketSize):
-   values = []
-   for value in range(min, max + 1, bucketSize):
-      top = value + bucketSize - 1
-      values.append('%s-%s' % (value, top))
-   return values
+   '''Return a list of bucket indexes
+
+   >>> bucketed_range(3, 15, 10)
+   [0, 1]
+   >>> bucketed_range(13, 50, 10)
+   [1, 2, 3, 4]
+   >>> bucketed_range(-3, 50, 10)
+   Traceback (most recent call last):
+      ...
+   ValueError: min and max must be positive
+   >>> bucketed_range(30, 5, 10)
+   Traceback (most recent call last):
+      ...
+   ValueError: min must be smaller or equal to max
+   '''
+   if min <= 0 or max <= 0:
+      raise ValueError('min and max must be positive')
+   if min > max:
+      raise ValueError('min must be smaller or equal to max')
+   return [value // bucketSize for value in range(min, max + 1, bucketSize)]
 
 def print_report(subject):
    '''Do various calculations on the subject, then print the results.
@@ -282,15 +306,43 @@ def print_date_report(subject, name):
    print_histogram(allData.items(), name)
 
 def print_diff_report(subject, bucketSize):
+   '''Print report for additions and deletions
+
+   >>> from github_pr_stats import stats
+   >>> stats['foo'] = [1, 2, 3, 14]
+   >>> stats['fooHistogram'] = OrderedDict()
+   >>> stats['count'] = sum(stats['foo'])
+   >>> print_diff_report('foo', 10)
+   foo: 5.0 (mean) 2.5 (median) 5.24404424085 (std. dev.) 1 (min) 14 (max)
+   <BLANKLINE>
+   ###############################################################################
+   ███████████████████████████████████████████████████████████  3  ( 15.00%)  1-10
+   ███████████████████                                          1  (  5.00%) 11-20
+   '''
    data = array(stats[subject])
    statsAnalysis = StatsAnalysis(data, subject)
    print statsAnalysis
 
-   initialize_ordered_dict(stats[subject+'Histogram'], bucketed_range(statsAnalysis.min, statsAnalysis.max, bucketSize), 0)
+   # No data?
+   if (data == array([0])).all():
+      return
+
+   initialize_ordered_dict(stats[subject+'Histogram'],
+                           bucketed_range(statsAnalysis.min,
+                                          statsAnalysis.max,
+                                          bucketSize),
+                           0)
+   valueLength = len(str((statsAnalysis.max // bucketSize) * bucketSize + bucketSize))
    for value in data:
       bucket = bucket_value(value, bucketSize)
       stats[subject+'Histogram'][bucket] += 1
-   print_histogram(stats[subject+'Histogram'].items())
+   aligned_stats = OrderedDict()
+   for bucket, value in stats[subject+'Histogram'].items():
+      bucket = '{0:{width}}-{1:{width}}'.format(bucket * bucketSize + 1,
+                                                (bucket + 1) * bucketSize,
+                                                width=valueLength)
+      aligned_stats[bucket] = value
+   print_histogram(aligned_stats.items())
 
 class StatsAnalysis(object):
    def __init__(self, data, subject=''):
