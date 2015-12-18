@@ -55,7 +55,7 @@ or via Docker :
 
 Use it as a container by building it first
 
-    docker build -t git-pr-stats .
+    docker build -t github-pr-stats .
 
 And then launch the command like this :
 
