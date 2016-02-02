@@ -86,7 +86,7 @@ def analyze(token, config, user, repo=None, since=None, until=None, \
 
       for issue in repo.iter_issues(state='closed', direction='asc', since=since):
          if until and issue.created_at >= until:
-            break
+            continue
 
          # The 'since' parameter always applies to updates, even if we specify a
          # 'sort' of, say, creation date, so we can't rely on it to filter out
