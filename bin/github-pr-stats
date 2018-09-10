@@ -49,6 +49,21 @@ from github3 import GitHub, GitHubEnterprise
 from github_pr_stats import VERSION
 from github_pr_stats.github_pr_stats import analyze
 
+try:
+    # Python 2
+    prompt = raw_input
+except NameError:
+    # Python 3
+    prompt = input
+
+def two_factor_prompt():
+    code = ''
+    while not code:
+        # The user could accidentally press Enter before being ready,
+        # let's protect them from doing that.
+        code = prompt('Enter 2FA code: ')
+    return code
+
 def authorize(login, password, scopes, note='', note_url='', client_id='',
               client_secret='', url=None):
    """Obtain an authorization token for the GitHub API.
@@ -67,6 +82,7 @@ def authorize(login, password, scopes, note='', note_url='', client_id='',
 
    """
    gh = GitHubEnterprise(url) if url is not None else GitHub()
+   gh.login(username=login, password=password, two_factor_callback=two_factor_prompt)
    return gh.authorize(login, password, scopes, note, note_url, client_id, client_secret)
 
 # Stack traces are ugly; why would we want to print one on ctrl-c?
