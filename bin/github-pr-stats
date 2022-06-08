@@ -40,7 +40,7 @@ Options:
 import signal
 import sys
 from collections import defaultdict
-from urlparse import urlsplit
+from urllib.parse import urlsplit
 
 from docopt import docopt
 from envoy import run
@@ -96,7 +96,7 @@ if not token:
    user = password = ''
 
    while not user:
-      user = raw_input('Username: ')
+      user = input('Username: ')
    while not password:
       password = getpass('Password: ')
 

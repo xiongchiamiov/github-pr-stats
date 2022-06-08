@@ -55,7 +55,7 @@ or
 
 I highly recommend using virtualenv:
 
-    [$]> virtualenv --no-site-packages --distribute env
+    [$]> python3 -m venv env
     [$]> source env/bin/activate
     [$]> pip install -r requirements.txt
     [$]> pip install -e . # So we can import the version from inside bin/ .

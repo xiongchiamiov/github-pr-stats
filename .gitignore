@@ -2,4 +2,4 @@ env
 MANIFEST
 dist
 *.egg-info
-
+github_pr_stats/__pycache__/

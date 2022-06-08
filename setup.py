@@ -10,7 +10,7 @@ from github_pr_stats import VERSION
 # right place.
 try:
    import pypandoc
-   description = pypandoc.convert('README.md', 'rst')
+   description = pypandoc.convert_file('README.md', 'rst')
 except (IOError, OSError, ImportError):
    description = ''
 try:
@@ -32,11 +32,9 @@ setup(
    install_requires = [
       'ascii-graph >= 0.2.0',
       'docopt >= 0.6, < 0.7',
-      'envoy >= 0.0.2',
+      'envoy >= 0.0.3',
       'github3.py >= 0.8, < 0.9',
-      'importlib >= 1.0',
-      'numpy >= 1.7, < 1.8',
-      'ordereddict',
+      'numpy >= 1.22, < 2.0',
       'python-dateutil >= 2.2, < 2.3',
    ],
 )

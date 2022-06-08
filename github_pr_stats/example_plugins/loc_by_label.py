@@ -21,8 +21,8 @@ def analyze_pull(globalEnv, localEnv):
       globalEnv['stats']['deletionsByLabel']['<no label>'] += pr.deletions
 
 def print_report(globalEnv, localEnv):
-   globalEnv['print_histogram'](globalEnv['stats']['additionsByLabel'].items(),
+   globalEnv['print_histogram'](list(globalEnv['stats']['additionsByLabel'].items()),
                                 'Additions by Label')
-   globalEnv['print_histogram'](globalEnv['stats']['deletionsByLabel'].items(),
+   globalEnv['print_histogram'](list(globalEnv['stats']['deletionsByLabel'].items()),
                                 'Deletions by Label')
 

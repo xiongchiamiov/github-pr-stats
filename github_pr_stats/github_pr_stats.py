@@ -2,7 +2,7 @@
 # May you share freely, never taking more than you give.
 # May you find love and love everyone you find.
 
-from __future__ import division
+
 
 import sys
 from collections import defaultdict
@@ -60,16 +60,16 @@ def analyze(token, config, user, repo=None, since=None, until=None, \
    for plugin in plugins:
       plugin.setup(globals(), locals())
    
-   initialize_ordered_dict(stats['dayOfWeekCreated'], dayMapping.values(), 0)
-   initialize_ordered_dict(stats['dayOfWeekClosed'], dayMapping.values(), 0)
-   initialize_ordered_dict(stats['hourOfDayCreated'], range(24), 0)
-   initialize_ordered_dict(stats['hourOfDayClosed'], range(24), 0)
+   initialize_ordered_dict(stats['dayOfWeekCreated'], list(dayMapping.values()), 0)
+   initialize_ordered_dict(stats['dayOfWeekClosed'], list(dayMapping.values()), 0)
+   initialize_ordered_dict(stats['hourOfDayCreated'], list(range(24)), 0)
+   initialize_ordered_dict(stats['hourOfDayClosed'], list(range(24)), 0)
 
    # If we get dates in string format, try to parse them out.  But leave Nones
    # and datetimes alone.
-   if isinstance(since, basestring):
+   if isinstance(since, str):
       since = parse(since)
-   if isinstance(until, basestring):
+   if isinstance(until, str):
       until = parse(until)
 
    if repo is None:
@@ -82,7 +82,7 @@ def analyze(token, config, user, repo=None, since=None, until=None, \
          continue
       
       progressMeter = 'In %s, analyzing pull number:     ' % repo
-      print progressMeter,
+      print(progressMeter, end=' ')
 
       for issue in repo.iter_issues(state='closed', direction='asc', since=since):
          if until and issue.created_at >= until:
@@ -103,7 +103,7 @@ def analyze(token, config, user, repo=None, since=None, until=None, \
          pr = repo.pull_request(issue.number)
          
          # We'll just assume we won't go over four digits of issues.
-         print '\b\b\b\b\b%4d' % pr.number,
+         print('\b\b\b\b\b%4d' % pr.number, end=' ')
          sys.stdout.flush()
          
          stats['count'] += 1
@@ -159,35 +159,35 @@ def analyze(token, config, user, repo=None, since=None, until=None, \
 
          for plugin in plugins:
             plugin.analyze_pull(globals(), locals())
-      print '\b' * (len(progressMeter) + 1), # +1 for the newline
-   print "\n"
+      print('\b' * (len(progressMeter) + 1), end=' ') # +1 for the newline
+   print("\n")
 
    if config['basicStats']:
       percentageMerged = 100 * (stats['merged'] / stats['count'])
-      print '%.2f%% (%s of %s) closed pulls merged.' % (percentageMerged, stats['merged'], stats['count'])
+      print('%.2f%% (%s of %s) closed pulls merged.' % (percentageMerged, stats['merged'], stats['count']))
    
    if config['daysOpen']:
       print_report('daysOpen')
    if config['comments']:
       print_report('comments')
    if config['dayOfWeekCreated']:
-      print_histogram(stats['dayOfWeekCreated'].items(), 'Day of Week Created')
+      print_histogram(list(stats['dayOfWeekCreated'].items()), 'Day of Week Created')
    if config['dayOfWeekClosed']:
-      print_histogram(stats['dayOfWeekClosed'].items(), 'Day of Week Closed')
+      print_histogram(list(stats['dayOfWeekClosed'].items()), 'Day of Week Closed')
    if config['hourOfDayCreated']:
-      print_histogram(stats['hourOfDayCreated'].items(), 'Hour of Day Created')
+      print_histogram(list(stats['hourOfDayCreated'].items()), 'Hour of Day Created')
    if config['hourOfDayClosed']:
-      print_histogram(stats['hourOfDayClosed'].items(), 'Hour of Day Closed')
+      print_histogram(list(stats['hourOfDayClosed'].items()), 'Hour of Day Closed')
    if config['weekCreated']:
       print_date_report('weekCreated', 'Week Created')
    if config['weekClosed']:
       print_date_report('weekClosed', 'Week Closed')
    if config['userCreating']:
-      print_histogram(stats['userCreating'].items(), 'User Creating Pull Request')
+      print_histogram(list(stats['userCreating'].items()), 'User Creating Pull Request')
    if config['userClosing']:
-      print_histogram(stats['userClosing'].items(), 'User Merging Pull Request')
+      print_histogram(list(stats['userClosing'].items()), 'User Merging Pull Request')
    if config['labels']:
-      print_histogram(stats['labels'].items(), 'Labels Attached')
+      print_histogram(list(stats['labels'].items()), 'Labels Attached')
    if config['additions']:
       print_diff_report('additions', bucketSize)
    if config['deletions']:
@@ -261,36 +261,36 @@ def print_report(subject):
    is easier.
    '''
    statsAnalysis = StatsAnalysis(array(stats[subject]), subject)
-   print statsAnalysis
+   print(statsAnalysis)
 
-   initialize_ordered_dict(stats[subject+'Histogram'], range(statsAnalysis.min, statsAnalysis.max))
+   initialize_ordered_dict(stats[subject+'Histogram'], list(range(statsAnalysis.min, statsAnalysis.max)))
    
-   print_histogram(stats[subject+'Histogram'].items())
+   print_histogram(list(stats[subject+'Histogram'].items()))
 
 def print_date_report(subject, name):
    # Calculate only the min and the max because the mean of a series of weeks
    # doesn't make much sense.
-   data = array(stats[subject].keys())
+   data = array(list(stats[subject].keys()))
    minWeek = data.min()
    maxWeek = data.max()
    
    allData = OrderedDict()
    initialize_ordered_dict(allData, create_week_range(minWeek, maxWeek), 0)
-   for key, value in stats[subject].items():
+   for key, value in list(stats[subject].items()):
       newKey = key.isoformat()
       allData[newKey] = value
-   print_histogram(allData.items(), name)
+   print_histogram(list(allData.items()), name)
 
 def print_diff_report(subject, bucketSize):
    data = array(stats[subject])
    statsAnalysis = StatsAnalysis(data, subject)
-   print statsAnalysis
+   print(statsAnalysis)
 
    initialize_ordered_dict(stats[subject+'Histogram'], bucketed_range(statsAnalysis.min, statsAnalysis.max, bucketSize), 0)
    for value in data:
       bucket = bucket_value(value, bucketSize)
       stats[subject+'Histogram'][bucket] += 1
-   print_histogram(stats[subject+'Histogram'].items())
+   print_histogram(list(stats[subject+'Histogram'].items()))
 
 class StatsAnalysis(object):
    def __init__(self, data, subject=''):
@@ -322,5 +322,5 @@ def print_histogram(data, label=''):
    for line in graph.graph(label, data):
       # Encode explicitly to get around this bug:
       # https://github.com/kakwa/py-ascii-graph/issues/4
-      print line.encode('utf-8')
+      print(line.encode('utf-8'))
 
