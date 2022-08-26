@@ -2,7 +2,7 @@
 '''github-pr-stats
 
 Usage:
-   github-pr-stats [options] <user> [<repo>]
+   github-pr-stats [options] <user or organization> [<repo>]
    github-pr-stats --version
    github-pr-stats (-h | --help)
 
