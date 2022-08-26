@@ -7,6 +7,6 @@ numpy==1.22.4
 ordereddict==1.1
 pypandoc==1.8.1
 python-dateutil==2.2
-requests==2.2.1
+requests==2.20.0
 six==1.5.2
 uritemplate.py==0.3.0
